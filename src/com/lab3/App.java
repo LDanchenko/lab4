@@ -8,9 +8,9 @@ import java.sql.*;
 
 public class App {
     public JTable table1;
-    private  JLabel label1;
     private  JButton button1;
     private JPanel panelMain;
+    private JTabbedPane tabbedPane1;
     private DefaultTableModel tableModel;
 
 

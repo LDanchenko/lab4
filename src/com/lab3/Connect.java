@@ -28,7 +28,7 @@ public class Connect {
 
         try {// пробуем соед
             connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-            System.out.println("r");
+
 
             DatabaseMetaData metaData =  connection.getMetaData(); //проверяем, есть ли таблицы, если нет, создать
             Statement statement = connection.createStatement();
