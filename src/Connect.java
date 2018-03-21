@@ -29,17 +29,18 @@ public class Connect {
             System.out.println("r");
 
             DatabaseMetaData metaData =  connection.getMetaData(); //проверяем, есть ли таблицы, если нет, создать
-            ResultSet rsTableOrders = metaData.getTables(null, "logistic", "orders", null );
             Statement statement = connection.createStatement();
-            if (!rsTableOrders.next()) { //если нет такой таблицы
-                String creatOrders = "CREATE TABLE orders (id int(11) NOT NULL, cargo text NOT NULL,town text NOT NULL,address int(11) NOT NULL,store text NOT NULL,representation text NOT NULL,client int(11) NOT NULL,route text NOT NULL,transport int(11) NOT NULL , PRIMARY KEY (id))";
+
+            ResultSet rsTableTransport = metaData.getTables(null, "logistic", "transport", null );
+            if (!rsTableTransport.next()) { //если нет такой таблицы
+                String creatTransport = "CREATE TABLE addresses ( id int(11) NOT NULL, name text NOT NULL, PRIMARY KEY (id)) ";
                 try {
-                    statement.executeUpdate(creatOrders);
-                }
-                catch (SQLException e){
+                    statement.executeUpdate(creatTransport) ;}
+                catch (SQLException e) {
                     System.out.println("не удалось создать таблицу");
                 }
             }
+
 
             ResultSet rsTableAddress = metaData.getTables(null, "logistic", "addresses", null );
             if (!rsTableAddress.next()) { //если нет такой таблицы
@@ -51,15 +52,28 @@ public class Connect {
                 }
             }
 
-      //      ResultSet rsTableAddress = metaData.getTables(null, "logistic", "addresses", null );
-       //     if (!rsTableAddress.next()) { //если нет такой таблицы
-        //String creatrAddresses = "CREATE TABLE addresses ( id int(11) NOT NULL, name text NOT NULL, PRIMARY KEY (id)) ";
-         //       try {
-          //          statement.executeUpdate(creatrAddresses) ;}
-           //     catch (SQLException e) {
-            //        System.out.println("не удалось создать таблицу");
-             //   }
-            //}
+            ResultSet rsTableClients = metaData.getTables(null, "logistic", "clients", null );
+            if (!rsTableClients.next()) { //если нет такой таблицы
+        String creatClients = "CREATE TABLE addresses ( id int(11) NOT NULL, name text NOT NULL, PRIMARY KEY (id)) ";
+                try {
+                    statement.executeUpdate(creatClients) ;}
+                catch (SQLException e) {
+                    System.out.println("не удалось создать таблицу");
+                }
+            }
+
+            ResultSet rsTableOrders = metaData.getTables(null, "logistic", "orders", null );
+            if (!rsTableOrders.next()) { //если нет такой таблицы
+                String creatOrders = "CREATE TABLE orders (id int(11) NOT NULL, cargo text NOT NULL,town text NOT NULL,address int(11) NOT NULL,store text NOT NULL,representation text NOT NULL,client int(11) NOT NULL,route text NOT NULL,transport int(11) NOT NULL , PRIMARY KEY (id))";
+                try {
+                    statement.executeUpdate(creatOrders);
+                }
+                catch (SQLException e){
+                    System.out.println("не удалось создать таблицу");
+                }
+            }
+
+
 
         } catch (SQLException ex) {
             System.out.println("Не удалось создать соединение :(");
