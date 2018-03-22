@@ -7,21 +7,48 @@ import java.awt.event.ActionListener;
 import java.sql.*;
 
 public class App {
-    public JTable table1;
+    private JTable table1;
     private  JButton button1;
     private JPanel panelMain;
     private JTabbedPane tabbedPane1;
-    private DefaultTableModel tableModel;
-
+    private JTable table2;
+    private JTable table3;
+    private JTable table4;
 
 
     public App() throws SQLException {
 //Выводим данные из таблиц
         Connect connect = new Connect();
         Connection con = connect.getConnect(); //подключились
-        DefaultTableModel tableModel = new DefaultTableModel(0,0);
         Statement statement = con.createStatement();
-        ResultSet resultSet = statement.executeQuery("SELECT * FROM clients");
+//выводим клиентов
+        table1.setModel(showData(statement, "SELECT * FROM clients"));
+        //вывод таблицы адресов
+        table2.setModel(showData(statement, "SELECT * FROM addresses"));
+//выводим транспорт
+        table4.setModel(showData(statement, "SELECT * FROM transport"));
+//выводим заказы
+        table3.setModel(showData(statement, "SELECT o.id, o.cargo, o.town ,o.store, o.representation, o.route,  a.name AS address,c.name AS client, t.name AS transport  FROM orders o INNER JOIN addresses a ON o.address = a.id INNER JOIN clients c ON o.client = c.id  INNER JOIN transport t ON o.transport = t.id"));
+       // table3.setModel(showData(statement, "SELECT a.name AS address FROM orders o INNER JOIN addresses a ON o.address = a.id"));
+
+//закрываем подключение
+        con.close();
+
+
+//обработчик нажатия на кнопку
+        button1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                JOptionPane.showMessageDialog(null, "Hello!");
+            }
+        });
+    }
+
+    //тут выводим данные в таблицы
+
+    public DefaultTableModel showData(Statement statement, String Query) throws SQLException {
+        DefaultTableModel tableModel = new DefaultTableModel(0,0);
+        ResultSet resultSet = statement.executeQuery(Query);
         // из метаданных узнаем колличество столбцов строк и названия столбцов
         ResultSetMetaData metaData =  resultSet.getMetaData();
         int columnCount = metaData.getColumnCount();
@@ -38,17 +65,11 @@ public class App {
             tableModel.addRow(row);
         }
         resultSet.close();
-        con.close();
-        table1.setModel(tableModel);
-
-
-        button1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                JOptionPane.showMessageDialog(null, "Hello!");
-            }
-        });
+        return tableModel;
     }
+
+
+
 
 
 
@@ -58,7 +79,7 @@ public class App {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
-        App app = new App();
+       App app = new App();
 
 
 
