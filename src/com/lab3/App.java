@@ -28,7 +28,7 @@ public class App {
 //выводим транспорт
         table4.setModel(showData(statement, "SELECT * FROM transport"));
 //выводим заказы
-        table3.setModel(showData(statement, "SELECT o.id, o.cargo, o.town ,o.store, o.representation, o.route,  a.name AS address,c.name AS client, t.name AS transport  FROM orders o INNER JOIN addresses a ON o.address = a.id INNER JOIN clients c ON o.client = c.id  INNER JOIN transport t ON o.transport = t.id"));
+        table3.setModel(showData(statement, "SELECT o.id, o.cargo, o.town ,o.store, o.representation, o.route,  a.name AS address,c.name AS client, t.name AS transport, s.name AS status  FROM orders o INNER JOIN addresses a ON o.address = a.id INNER JOIN clients c ON o.client = c.id  INNER JOIN transport t ON o.transport = t.id INNER JOIN status s ON o.status = s.id"));
        // table3.setModel(showData(statement, "SELECT a.name AS address FROM orders o INNER JOIN addresses a ON o.address = a.id"));
 
 //закрываем подключение
