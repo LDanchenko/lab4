@@ -18,6 +18,8 @@ public class App {
     private JTable table6;
     private JButton button2;
     private JTable table7;
+    private JComboBox comboBox1;
+    private JLabel label1;
 
 
     public App() throws SQLException {
@@ -46,8 +48,11 @@ public class App {
         // table3.setModel(showData(statement, "SELECT a.name AS address FROM orders o INNER JOIN addresses a ON o.address = a.id"));
 
 //закрываем подключение
-        con.close();
 
+
+
+
+        comBO(statement);
 
 //обработчик нажатия на кнопку
         button1.addActionListener(new ActionListener() {
@@ -56,6 +61,13 @@ public class App {
                 JOptionPane.showMessageDialog(null, "Hello!");
             }
         });
+        button2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+
+            }
+        });
+        con.close();
     }
 
     //тут выводим данные в таблицы
@@ -80,6 +92,25 @@ public class App {
         }
         resultSet.close();
         return tableModel;
+    }
+
+    public void comBO(Statement statement) throws SQLException {
+      //  String s = "";
+        ResultSet resultSet = statement.executeQuery("SELECT  g.name AS goods FROM count c  INNER JOIN goods g ON c.goods = g.id");
+        // из метаданных узнаем колличество столбцов строк и названия столбцов
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        int columnCount = metaData.getColumnCount();
+        String[] row = new String[columnCount];
+        while (resultSet.next()) {
+            for (int i = 1; i <= columnCount; i++) {
+                comboBox1.addItem(resultSet.getString(i));
+
+                // s = s + " " + resultSet.getString(i);
+            }
+
+        }
+                 //  JOptionPane.showMessageDialog(null, row[i]);
+      // label1.setText(s);
     }
 
 
