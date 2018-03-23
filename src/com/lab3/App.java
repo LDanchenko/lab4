@@ -14,6 +14,7 @@ public class App {
     private JTable table2;
     private JTable table3;
     private JTable table4;
+    private JTable table5;
 
 
     public App() throws SQLException {
@@ -28,7 +29,9 @@ public class App {
 //выводим транспорт
         table4.setModel(showData(statement, "SELECT * FROM transport"));
 //выводим заказы
-        table3.setModel(showData(statement, "SELECT o.id, o.cargo, o.town ,o.store, o.representation, o.route,  a.name AS address,c.name AS client, t.name AS transport, s.name AS status  FROM orders o INNER JOIN addresses a ON o.address = a.id INNER JOIN clients c ON o.client = c.id  INNER JOIN transport t ON o.transport = t.id INNER JOIN status s ON o.status = s.id"));
+        table3.setModel(showData(statement, "SELECT o.id, o.town,  o.representation, o.route,  a.name AS address, g.name AS goods, c.name AS client, t.name AS transport, st.name AS store, s.name AS status  " +
+                "FROM orders o INNER JOIN addresses a ON o.address = a.id INNER JOIN goods g ON o.goods = g.id INNER JOIN clients c ON o.client = c.id  INNER JOIN transport t ON o.transport = t.id  " +
+                " INNER JOIN stores st ON o.store = st.id INNER JOIN status s ON o.status = s.id"));
        // table3.setModel(showData(statement, "SELECT a.name AS address FROM orders o INNER JOIN addresses a ON o.address = a.id"));
 
 //закрываем подключение
@@ -85,4 +88,6 @@ public class App {
 
 
     }
+
+
 }
