@@ -15,6 +15,8 @@ public class App {
     private JTable table3;
     private JTable table4;
     private JTable table5;
+    private JTable table6;
+    private JTable table7;
 
 
     public App() throws SQLException {
@@ -28,6 +30,12 @@ public class App {
         table2.setModel(showData(statement, "SELECT * FROM addresses"));
 //выводим транспорт
         table4.setModel(showData(statement, "SELECT * FROM transport"));
+//выводим товары
+        table5.setModel(showData(statement, "SELECT * FROM goods"));
+        //выводим магазины
+        table6.setModel(showData(statement, "SELECT * FROM stores"));
+        //выводим колличество товаров в магазине
+        table7.setModel(showData(statement, "SELECT c.id, c.count, s.name AS store, g.name AS goods FROM count c INNER JOIN stores s ON c.store = s.id INNER JOIN goods g ON c.goods = g.id "));
 //выводим заказы
         table3.setModel(showData(statement, "SELECT o.id, o.town,  o.representation, o.route,  a.name AS address, g.name AS goods, c.name AS client, t.name AS transport, st.name AS store, s.name AS status  " +
                 "FROM orders o INNER JOIN addresses a ON o.address = a.id INNER JOIN goods g ON o.goods = g.id INNER JOIN clients c ON o.client = c.id  INNER JOIN transport t ON o.transport = t.id  " +
