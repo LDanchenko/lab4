@@ -24,6 +24,8 @@ public class App {
     private JTable table7;
     private JComboBox comboBox1;
     private JLabel label1;
+    private JComboBox comboBox2;
+    private JButton button3;
 
 
     public App() throws SQLException {
@@ -56,7 +58,8 @@ public class App {
 
 
 
-        comBO(statement);
+        comboBoxGoods(statement);
+        comboBoxStores(statement);
 
 //обработчик нажатия на кнопку
         button1.addActionListener(new ActionListener() {
@@ -70,29 +73,50 @@ public class App {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 String good = comboBox1.getSelectedItem().toString();
-                //JOptionPane.showMessageDialog(null, good);
 
-               // JOptionPane.showMessageDialog(null,  comboBox1.getSelectedItem().toString());
                 String parametr = comboBox1.getSelectedItem().toString();
                 try {
                     String s = null;
                     ResultSet resultSet = statement.executeQuery("SELECT id FROM goods WHERE goods.name = '"+parametr +"'");
                     if(resultSet.next()) {
                        s = resultSet.getString(1);
-                        System.out.println(s);
                     }
                     //JOptionPane.showMessageDialog(null,  resultSet.getString(1));
                      table7.setModel(showData(statement, "SELECT c.id, c.count, s.name AS store, g.name AS goods FROM count c INNER JOIN stores " +
                             "s ON c.store = s.id INNER JOIN goods g ON c.goods = g.id WHERE c.goods = "+ s + " "));
+                    resultSet.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
 
             }
         });
-        //когда закрыли приложение закрыли и коннект
+        //когда закрыли приложение закрыли и коннект!!
       //  con.close();
+//кнопка выберите склад
+        button3.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
 
+                String good = comboBox2.getSelectedItem().toString();
+
+                String parametr = comboBox2.getSelectedItem().toString();
+                try {
+                    String s = null;
+                    ResultSet resultSet = statement.executeQuery("SELECT id FROM stores WHERE stores.name = '"+parametr +"'");
+                    if(resultSet.next()) {
+                        s = resultSet.getString(1);
+                      //  JOptionPane.showMessageDialog(null, resultSet.getString(1));
+                    }
+                    table7.setModel(showData(statement, "SELECT c.id, c.count, s.name AS store, g.name AS goods FROM count c INNER JOIN stores " +
+                            "s ON c.store = s.id INNER JOIN goods g ON c.goods = g.id WHERE c.store = "+ s + " "));
+                    resultSet.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
     }
 
     //тут выводим данные в таблицы
@@ -119,7 +143,8 @@ public class App {
         return tableModel;
     }
 
-    public void comBO(Statement statement) throws SQLException {
+    //заполнить комбобокс товарами из таблицы
+    public void comboBoxGoods(Statement statement) throws SQLException {
 
 
         ResultSet resultSet = statement.executeQuery("SELECT  g.name AS goods FROM count c  INNER JOIN goods g ON c.goods = g.id");
@@ -138,16 +163,37 @@ public class App {
 
         }
 //удаляем повторы
-        System.out.println("Array before removing duplicates: "                + al.toString());
         List<String> deduped = al.stream().distinct().collect(Collectors.toList());
-        System.out.println("Array after removing duplicates: "                + deduped.toString());
-for (int i = 1; i<=deduped.size(); i++){
+    for (int i = 1; i<=deduped.size(); i++){
     comboBox1.addItem(deduped.get(i-1));
-}
-
-
-
+        }
     }
+
+    public void comboBoxStores(Statement statement) throws SQLException {
+
+
+        ResultSet resultSet = statement.executeQuery("SELECT  s.name AS store FROM count c  INNER JOIN stores s ON c.store = s.id");
+        ResultSetMetaData metaData = resultSet.getMetaData();
+
+        int columnCount = metaData.getColumnCount();
+//из резалт сет значения передаем в список
+        ArrayList<String> al = new ArrayList<String>();
+        while (resultSet.next()) {
+            ArrayList<String> record = new ArrayList<String>();
+            for (int i = 1; i <= metaData.getColumnCount(); i++) {
+                String value = resultSet.getString(i);
+                al.add(value);
+
+            }
+
+        }
+//удаляем повторы
+        List<String> deduped = al.stream().distinct().collect(Collectors.toList());
+        for (int i = 1; i<=deduped.size(); i++){
+            comboBox2.addItem(deduped.get(i-1));
+        }
+    }
+
 
 
     public static void main(String[] args) throws SQLException {
