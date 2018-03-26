@@ -26,6 +26,12 @@ public class App {
     private JLabel label1;
     private JComboBox comboBox2;
     private JButton button3;
+    private JComboBox comboBox3;
+    private JButton v_Button1;
+    private JComboBox comboBox4;
+    private JButton clButton;
+    private JButton allButton;
+    private JButton alButton;
 
 
     public App() throws SQLException {
@@ -57,10 +63,10 @@ public class App {
 
 
 
-
-        comboBoxGoods(statement);
-        comboBoxStores(statement);
-
+        comboBoxFill(statement, "SELECT  s.name AS status FROM orders o  INNER JOIN status s ON o.status = s.id", comboBox3);
+        comboBoxFill(statement, "SELECT  s.name AS store FROM count c  INNER JOIN stores s ON c.store = s.id", comboBox2);
+        comboBoxFill(statement, "SELECT  g.name AS goods FROM count c  INNER JOIN goods g ON c.goods = g.id", comboBox1);
+        comboBoxFill(statement, "SELECT  c.name AS client FROM orders o  INNER JOIN clients c ON o.client = c.id", comboBox4);
 //обработчик нажатия на кнопку
         button1.addActionListener(new ActionListener() {
             @Override
@@ -117,6 +123,82 @@ public class App {
 
             }
         });
+
+        //кнопка фильтр по статусу заказа
+        v_Button1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                String good = comboBox3.getSelectedItem().toString();
+
+                String parametr = comboBox3.getSelectedItem().toString();
+                try {
+                    String s = null;
+                    ResultSet resultSet = statement.executeQuery("SELECT id FROM status WHERE status.name = '"+parametr +"'");
+                    if(resultSet.next()) {
+                        s = resultSet.getString(1);
+                        //  JOptionPane.showMessageDialog(null, resultSet.getString(1));
+                    }
+                    table3.setModel(showData(statement, "SELECT o.id, o.town,  o.representation, o.route,  a.name AS address, g.name AS goods, c.name AS client, t.name AS transport, st.name AS store, s.name AS status  " +
+                            "FROM orders o INNER JOIN addresses a ON o.address = a.id INNER JOIN goods g ON o.goods = g.id INNER JOIN clients c ON o.client = c.id  INNER JOIN transport t ON o.transport = t.id  " +
+                                    " INNER JOIN stores st ON o.store = st.id INNER JOIN status s ON o.status = s.id WHERE o.status = " + s +" "));
+                    resultSet.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        //вывести все склад
+        allButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                try {
+                    table7.setModel(showData(statement, "SELECT c.id, c.count, s.name AS store, g.name AS goods FROM count c INNER JOIN stores s ON c.store = s.id INNER JOIN goods g ON c.goods = g.id "));
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+//выводим заказы
+            }
+        });
+
+        //по статусу заказа
+        alButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+
+                try {
+                    table3.setModel(showData(statement, "SELECT o.id, o.town,  o.representation, o.route,  a.name AS address, g.name AS goods, c.name AS client, t.name AS transport, st.name AS store, s.name AS status  " +
+                            "FROM orders o INNER JOIN addresses a ON o.address = a.id INNER JOIN goods g ON o.goods = g.id INNER JOIN clients c ON o.client = c.id  INNER JOIN transport t ON o.transport = t.id  " +
+                            " INNER JOIN stores st ON o.store = st.id INNER JOIN status s ON o.status = s.id"));
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+        //вывести по клиентам
+        clButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+
+                String good = comboBox4.getSelectedItem().toString();
+
+                String parametr = comboBox4.getSelectedItem().toString();
+                try {
+                    String s = null;
+                    ResultSet resultSet = statement.executeQuery("SELECT id FROM clients WHERE clients.name = '"+parametr +"'");
+                    if(resultSet.next()) {
+                        s = resultSet.getString(1);
+                        //  JOptionPane.showMessageDialog(null, resultSet.getString(1));
+                    }
+                    table3.setModel(showData(statement, "SELECT o.id, o.town,  o.representation, o.route,  a.name AS address, g.name AS goods, c.name AS client, t.name AS transport, st.name AS store, s.name AS status  " +
+                            "FROM orders o INNER JOIN addresses a ON o.address = a.id INNER JOIN goods g ON o.goods = g.id INNER JOIN clients c ON o.client = c.id  INNER JOIN transport t ON o.transport = t.id  " +
+                            " INNER JOIN stores st ON o.store = st.id INNER JOIN status s ON o.status = s.id WHERE o.client = " + s +" "));
+                    resultSet.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     //тут выводим данные в таблицы
@@ -143,38 +225,10 @@ public class App {
         return tableModel;
     }
 
-    //заполнить комбобокс товарами из таблицы
-    public void comboBoxGoods(Statement statement) throws SQLException {
-
-
-        ResultSet resultSet = statement.executeQuery("SELECT  g.name AS goods FROM count c  INNER JOIN goods g ON c.goods = g.id");
+    //для заполнения комбобокс
+    public void comboBoxFill(Statement statement, String query, JComboBox comboBox1) throws SQLException {
+        ResultSet resultSet = statement.executeQuery(query);
         ResultSetMetaData metaData = resultSet.getMetaData();
-
-        int columnCount = metaData.getColumnCount();
-//из резалт сет значения передаем в список
-        ArrayList<String> al = new ArrayList<String>();
-        while (resultSet.next()) {
-            ArrayList<String> record = new ArrayList<String>();
-            for (int i = 1; i <= metaData.getColumnCount(); i++) {
-                String value = resultSet.getString(i);
-                al.add(value);
-
-            }
-
-        }
-//удаляем повторы
-        List<String> deduped = al.stream().distinct().collect(Collectors.toList());
-    for (int i = 1; i<=deduped.size(); i++){
-    comboBox1.addItem(deduped.get(i-1));
-        }
-    }
-
-    public void comboBoxStores(Statement statement) throws SQLException {
-
-
-        ResultSet resultSet = statement.executeQuery("SELECT  s.name AS store FROM count c  INNER JOIN stores s ON c.store = s.id");
-        ResultSetMetaData metaData = resultSet.getMetaData();
-
         int columnCount = metaData.getColumnCount();
 //из резалт сет значения передаем в список
         ArrayList<String> al = new ArrayList<String>();
@@ -190,9 +244,11 @@ public class App {
 //удаляем повторы
         List<String> deduped = al.stream().distinct().collect(Collectors.toList());
         for (int i = 1; i<=deduped.size(); i++){
-            comboBox2.addItem(deduped.get(i-1));
+            comboBox1.addItem(deduped.get(i-1));
         }
     }
+
+
 
 
 
