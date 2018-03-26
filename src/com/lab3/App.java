@@ -5,6 +5,10 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static javax.swing.UIManager.getString;
 
 public class App {
     private JTable table1;
@@ -64,10 +68,14 @@ public class App {
         button2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
+                String good = comboBox1.getSelectedItem().toString();
+                //JOptionPane.showMessageDialog(null, good);
 
+                JOptionPane.showMessageDialog(null,  comboBox1.getItemAt(2).toString());
             }
         });
         con.close();
+
     }
 
     //тут выводим данные в таблицы
@@ -95,22 +103,33 @@ public class App {
     }
 
     public void comBO(Statement statement) throws SQLException {
-      //  String s = "";
-        ResultSet resultSet = statement.executeQuery("SELECT  g.name AS goods FROM count c  INNER JOIN goods g ON c.goods = g.id");
-        // из метаданных узнаем колличество столбцов строк и названия столбцов
-        ResultSetMetaData metaData = resultSet.getMetaData();
-        int columnCount = metaData.getColumnCount();
-        String[] row = new String[columnCount];
-        while (resultSet.next()) {
-            for (int i = 1; i <= columnCount; i++) {
-                comboBox1.addItem(resultSet.getString(i));
 
-                // s = s + " " + resultSet.getString(i);
+
+        ResultSet resultSet = statement.executeQuery("SELECT  g.name AS goods FROM count c  INNER JOIN goods g ON c.goods = g.id");
+        ResultSetMetaData metaData = resultSet.getMetaData();
+
+        int columnCount = metaData.getColumnCount();
+//из резалт сет значения передаем в список
+        ArrayList<String> al = new ArrayList<String>();
+        while (resultSet.next()) {
+            ArrayList<String> record = new ArrayList<String>();
+            for (int i = 1; i <= metaData.getColumnCount(); i++) {
+                String value = resultSet.getString(i);
+                al.add(value);
+
             }
 
         }
-                 //  JOptionPane.showMessageDialog(null, row[i]);
-      // label1.setText(s);
+//удаляем повторы
+        System.out.println("Array before removing duplicates: "                + al.toString());
+        List<String> deduped = al.stream().distinct().collect(Collectors.toList());
+        System.out.println("Array after removing duplicates: "                + deduped.toString());
+for (int i = 1; i<=deduped.size(); i++){
+    comboBox1.addItem(deduped.get(i-1));
+}
+
+
+
     }
 
 
