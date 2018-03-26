@@ -65,16 +65,33 @@ public class App {
                 JOptionPane.showMessageDialog(null, "Hello!");
             }
         });
+        //кнопка на вкладке склад - посмотреть где товары и
         button2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 String good = comboBox1.getSelectedItem().toString();
                 //JOptionPane.showMessageDialog(null, good);
 
-                JOptionPane.showMessageDialog(null,  comboBox1.getItemAt(2).toString());
+               // JOptionPane.showMessageDialog(null,  comboBox1.getSelectedItem().toString());
+                String parametr = comboBox1.getSelectedItem().toString();
+                try {
+                    String s = null;
+                    ResultSet resultSet = statement.executeQuery("SELECT id FROM goods WHERE goods.name = '"+parametr +"'");
+                    if(resultSet.next()) {
+                       s = resultSet.getString(1);
+                        System.out.println(s);
+                    }
+                    //JOptionPane.showMessageDialog(null,  resultSet.getString(1));
+                     table7.setModel(showData(statement, "SELECT c.id, c.count, s.name AS store, g.name AS goods FROM count c INNER JOIN stores " +
+                            "s ON c.store = s.id INNER JOIN goods g ON c.goods = g.id WHERE c.goods = "+ s + " "));
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
             }
         });
-        con.close();
+        //когда закрыли приложение закрыли и коннект
+      //  con.close();
 
     }
 
