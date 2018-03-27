@@ -2,10 +2,12 @@ package com.lab3;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static javax.swing.UIManager.getString;
@@ -33,6 +35,8 @@ public class App {
     private JButton allButton;
     private JButton alButton;
     private JTextField textField1;
+    private JTextField textField2;
+    private JButton добавитьButton;
 
 
     public App() throws SQLException {
@@ -198,29 +202,8 @@ public class App {
         button1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-               String text =  textField1.getText();
-               if (!text.equals("")) {
-                   try {
-                       statement.executeUpdate("INSERT INTO clients VALUES (null, '" + text + "' )");
-                       int rowCount = statement.getUpdateCount();
-                       if (rowCount > 0)
-                       {
-                           textField1.setText("");
-                           table1.setModel(showData(statement, "SELECT * FROM clients"));
-                       }
-                       if (rowCount <= 0)
-                       {
-                           System.out.println("Что то пошло не так");
-
-                       }
-                   } catch (SQLException e) {
-                       e.printStackTrace();
-                   }
-
-               }
-               else {
-                   JOptionPane.showMessageDialog(null, "Заполните поле");
-               }
+                String text =  textField1.getText();
+                addFiled(text, "INSERT INTO clients VALUES (null, '" + text + " ')", statement, table1, "SELECT * FROM clients");
             }
         });
     }
@@ -272,7 +255,32 @@ public class App {
         }
     }
 
+    public void addFiled(String text,  String query, Statement statement, JTable jTable, String selectQuery) {
 
+        if (!text.equals("")) {
+            try {
+                statement.executeUpdate(query);
+                int rowCount = statement.getUpdateCount();
+                if (rowCount > 0)
+                {
+                    textField1.setText("");
+                    jTable.setModel(showData(statement, selectQuery));
+                }
+                if (rowCount <= 0)
+                {
+                    System.out.println("Что то пошло не так");
+
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
+        else {
+            JOptionPane.showMessageDialog(null, "Заполните поле");
+        }
+
+    }
 
 
 
