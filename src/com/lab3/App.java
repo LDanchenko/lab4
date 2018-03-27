@@ -256,33 +256,41 @@ public class App {
                            "FROM orders o INNER JOIN addresses a ON o.address = a.id INNER JOIN goods g ON o.goods = g.id INNER JOIN clients c ON o.client = c.id  INNER JOIN transport t ON o.transport = t.id  " +
                            " INNER JOIN stores st ON o.store = st.id INNER JOIN status s ON o.status = s.id   ") ;
 
-
-                    model.isCellEditable(0, 0);
-
+                   //добавили строку
                     model.addRow(new Object[]{ "","","","","","", "", "", "", ""});
 
 
                     table3.setModel(model);
-//чтобы нельзя было редактировать строку с id
+//в строке нужны выпадающие поля
+                    JComboBox comboBoxAddress = new JComboBox();
+                    comboBoxFill(statement, "SELECT addresses.name  FROM addresses" ,comboBoxAddress);
+                    table3.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(comboBoxAddress));
 
 
+                    JComboBox comboBoxGoods = new JComboBox();
+                    comboBoxFill(statement, "SELECT goods.name FROM goods " ,comboBoxGoods);
+                    table3.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(comboBoxGoods));
 
+                    JComboBox comboBoxClient = new JComboBox();
+                    comboBoxFill(statement, "SELECT clients.name FROM clients" ,comboBoxClient);
+                    table3.getColumnModel().getColumn(6).setCellEditor(new DefaultCellEditor(comboBoxClient));
 
-//done
-                    JComboBox comboBox = new JComboBox();
-                    comboBox.addItem("Snowboarding");
-                    comboBox.addItem("Rowing");
-                    comboBox.addItem("Knitting");
-                    comboBox.addItem("Speed reading");
-                    comboBox.addItem("Pool");
-                    comboBox.addItem("None of the above");
-                    table3.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(comboBox));
+                    JComboBox comboBoxTransport = new JComboBox();
+                    comboBoxFill(statement, "SELECT transport.name FROM transport" ,comboBoxTransport);
+                    table3.getColumnModel().getColumn(7).setCellEditor(new DefaultCellEditor(comboBoxTransport));
+
+                    JComboBox comboBoxStore = new JComboBox();
+                    comboBoxFill(statement, "SELECT stores.name FROM stores" ,comboBoxStore);
+                    table3.getColumnModel().getColumn(8).setCellEditor(new DefaultCellEditor(comboBoxStore));
+
+                    JComboBox comboBoxStatus = new JComboBox();
+                    comboBoxFill(statement, "SELECT status.name FROM status" ,comboBoxStatus);
+                    table3.getColumnModel().getColumn(9).setCellEditor(new DefaultCellEditor(comboBoxStatus));
 
                     //Set up tool tips for the sport cells.
-                    DefaultTableCellRenderer renderer =
-                            new DefaultTableCellRenderer();
-                    renderer.setToolTipText("Click for combo box");
-                    table3.getColumnModel().getColumn(5).setCellRenderer(renderer);
+                //    DefaultTableCellRenderer renderer =
+                  //          new DefaultTableCellRenderer();
+                    //table3.getColumnModel().getColumn(4).setCellRenderer(renderer);
 
                 } catch (SQLException e) {
                     e.printStackTrace();
@@ -291,6 +299,43 @@ public class App {
             }
         });
 
+        //когда в строку записали данные добавляем в базу
+        addOrder.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                //System.out.println(table3.getColumnCount());
+                //System.out.println(table3.getRowCount());
+                int lastColumn = table3.getColumnCount();
+                int lastRow = table3.getRowCount();
+                List <String> ArrayValuesFromTable = new ArrayList<>();
+               // String[][] values = new String[lastRow][lastColumn];
+                for (int i=1; i<table3.getColumnCount(); i++){
+                    ArrayValuesFromTable.add(table3.getValueAt(lastRow-1, i).toString());
+                }
+              /*  order.town = table3.getValueAt(lastRow-1,1).toString();
+                order.representation =  table3.getValueAt(lastRow-1,2).toString();
+                order.address =  table3.getValueAt(lastRow-1,3).toString();
+                order.goods =  table3.getValueAt(lastRow-1,4).toString();
+                order.client =  table3.getValueAt(lastRow-1,5).toString();
+                order.transport =  table3.getValueAt(lastRow-1,6).toString();
+                order.store = table3.getValueAt(lastRow-1,7).toString();
+                order.status = table3.getValueAt(lastRow-1,8).toString();
+                */
+                System.out.println(ArrayValuesFromTable.get(3).toString());
+                try {
+                    ResultSet resultSet = statement.executeQuery("SELECT addresses.id from addresses where addresses.name = '" + ArrayValuesFromTable.get(3).toString() + "'");
+                   // ResultSet resultSet = statement.executeQuery("SELECT id FROM stores WHERE stores.name = '"+parametr +"'");
+
+                    if(resultSet.next()) {
+                        String s = resultSet.getString(1).toString();
+                          JOptionPane.showMessageDialog(null, s);
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
     }
 
     //тут выводим данные в таблицы
