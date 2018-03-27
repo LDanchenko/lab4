@@ -1,10 +1,12 @@
 package com.lab3;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputMethodEvent;
+import java.awt.event.InputMethodListener;
 import java.sql.*;
 import java.util.*;
 import java.util.List;
@@ -36,7 +38,15 @@ public class App {
     private JButton alButton;
     private JTextField textField1;
     private JTextField textField2;
-    private JButton добавитьButton;
+    private JButton addGoodButton;
+    private JTextField textField3;
+    private JButton addAddressButton;
+    private JTextField textField4;
+    private JButton addTransportButton;
+    private JTextField textField5;
+    private JButton addStoreButton;
+    private JButton addRowButton;
+    private JButton addOrder;
 
 
     public App() throws SQLException {
@@ -203,15 +213,99 @@ public class App {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 String text =  textField1.getText();
-                addFiled(text, "INSERT INTO clients VALUES (null, '" + text + " ')", statement, table1, "SELECT * FROM clients");
+                addFiled(text, textField1,"INSERT INTO clients VALUES (null, '" + text + " ')", statement, table1, "SELECT * FROM clients");
             }
         });
+        addGoodButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                String text =  textField2.getText();
+                addFiled(text, textField2,"INSERT INTO goods VALUES (null, '" + text + " ')", statement, table5, "SELECT * FROM goods");
+            }
+        });
+        addAddressButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                String text =  textField3.getText();
+                addFiled(text, textField3,"INSERT INTO addresses VALUES (null, '" + text + " ')", statement, table2, "SELECT * FROM addresses");
+            }
+        });
+        addTransportButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                String text =  textField4.getText();
+                addFiled(text, textField4,"INSERT INTO transport VALUES (null, '" + text + " ')", statement, table4, "SELECT * FROM transport");
+            }
+        });
+        addStoreButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                String text =  textField5.getText();
+                addFiled(text, textField5,"INSERT INTO stores VALUES (null, '" + text + " ')", statement, table6, "SELECT * FROM stores");
+            }
+        });
+        //кнопка добавить заказ
+        addRowButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                //нужно добавить строку к тейбл модел
+                try {
+
+                   DefaultTableModel model = new DefaultTableModel();
+                   model = showData(statement, "SELECT o.id, o.town,  o.representation, o.route,  a.name AS address, g.name AS goods, c.name AS client, t.name AS transport, st.name AS store, s.name AS status  " +
+                           "FROM orders o INNER JOIN addresses a ON o.address = a.id INNER JOIN goods g ON o.goods = g.id INNER JOIN clients c ON o.client = c.id  INNER JOIN transport t ON o.transport = t.id  " +
+                           " INNER JOIN stores st ON o.store = st.id INNER JOIN status s ON o.status = s.id   ") ;
+
+
+                    model.isCellEditable(0, 0);
+
+                    model.addRow(new Object[]{ "","","","","","", "", "", "", ""});
+
+
+                    table3.setModel(model);
+//чтобы нельзя было редактировать строку с id
+
+
+
+
+//done
+                    JComboBox comboBox = new JComboBox();
+                    comboBox.addItem("Snowboarding");
+                    comboBox.addItem("Rowing");
+                    comboBox.addItem("Knitting");
+                    comboBox.addItem("Speed reading");
+                    comboBox.addItem("Pool");
+                    comboBox.addItem("None of the above");
+                    table3.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(comboBox));
+
+                    //Set up tool tips for the sport cells.
+                    DefaultTableCellRenderer renderer =
+                            new DefaultTableCellRenderer();
+                    renderer.setToolTipText("Click for combo box");
+                    table3.getColumnModel().getColumn(5).setCellRenderer(renderer);
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
     }
 
     //тут выводим данные в таблицы
 
     public DefaultTableModel showData(Statement statement, String Query) throws SQLException {
-        DefaultTableModel tableModel = new DefaultTableModel(0, 0);
+        DefaultTableModel tableModel = new DefaultTableModel() {
+//чтобы нельзя было редактировать первую колонку с id
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                if (column!=0){
+                    return true;
+                }
+                else return false;
+            }
+        };
         ResultSet resultSet = statement.executeQuery(Query);
         // из метаданных узнаем колличество столбцов строк и названия столбцов
         ResultSetMetaData metaData = resultSet.getMetaData();
@@ -231,6 +325,9 @@ public class App {
         resultSet.close();
         return tableModel;
     }
+
+
+
 
     //для заполнения комбобокс
     public void comboBoxFill(Statement statement, String query, JComboBox comboBox1) throws SQLException {
@@ -255,7 +352,7 @@ public class App {
         }
     }
 
-    public void addFiled(String text,  String query, Statement statement, JTable jTable, String selectQuery) {
+    public void addFiled(String text, JTextField textField, String query, Statement statement, JTable jTable, String selectQuery) {
 
         if (!text.equals("")) {
             try {
@@ -263,7 +360,7 @@ public class App {
                 int rowCount = statement.getUpdateCount();
                 if (rowCount > 0)
                 {
-                    textField1.setText("");
+                    textField.setText("");
                     jTable.setModel(showData(statement, selectQuery));
                 }
                 if (rowCount <= 0)
