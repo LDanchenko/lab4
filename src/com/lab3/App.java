@@ -32,6 +32,7 @@ public class App {
     private JButton clButton;
     private JButton allButton;
     private JButton alButton;
+    private JTextField textField1;
 
 
     public App() throws SQLException {
@@ -67,13 +68,7 @@ public class App {
         comboBoxFill(statement, "SELECT  s.name AS store FROM count c  INNER JOIN stores s ON c.store = s.id", comboBox2);
         comboBoxFill(statement, "SELECT  g.name AS goods FROM count c  INNER JOIN goods g ON c.goods = g.id", comboBox1);
         comboBoxFill(statement, "SELECT  c.name AS client FROM orders o  INNER JOIN clients c ON o.client = c.id", comboBox4);
-//обработчик нажатия на кнопку
-        button1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                JOptionPane.showMessageDialog(null, "Hello!");
-            }
-        });
+
         //кнопка на вкладке склад - посмотреть где товары и
         button2.addActionListener(new ActionListener() {
             @Override
@@ -199,6 +194,35 @@ public class App {
                 }
             }
         });
+        //кнопка добавить клиента
+        button1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+               String text =  textField1.getText();
+               if (!text.equals("")) {
+                   try {
+                       statement.executeUpdate("INSERT INTO clients VALUES (null, '" + text + "' )");
+                       int rowCount = statement.getUpdateCount();
+                       if (rowCount > 0)
+                       {
+                           textField1.setText("");
+                           table1.setModel(showData(statement, "SELECT * FROM clients"));
+                       }
+                       if (rowCount <= 0)
+                       {
+                           System.out.println("Что то пошло не так");
+
+                       }
+                   } catch (SQLException e) {
+                       e.printStackTrace();
+                   }
+
+               }
+               else {
+                   JOptionPane.showMessageDialog(null, "Заполните поле");
+               }
+            }
+        });
     }
 
     //тут выводим данные в таблицы
@@ -263,6 +287,7 @@ public class App {
 
 
     }
+
 
 
 }
