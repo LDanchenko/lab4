@@ -458,6 +458,22 @@
                   <text value="Вывести все"/>
                 </properties>
               </component>
+              <component id="1238a" class="javax.swing.JButton" binding="addRowSkladButton">
+                <constraints>
+                  <grid row="10" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Добавить строку"/>
+                </properties>
+              </component>
+              <component id="b9dc3" class="javax.swing.JButton" binding="saveRowButton">
+                <constraints>
+                  <grid row="11" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text value="Добавить"/>
+                </properties>
+              </component>
             </children>
           </grid>
         </children>

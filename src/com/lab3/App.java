@@ -48,6 +48,8 @@ public class App {
     private JButton addStoreButton;
     private JButton addRowButton;
     private JButton addOrder;
+    private JButton addRowSkladButton;
+    private JButton saveRowButton;
 
 
     public App() throws SQLException {
@@ -319,22 +321,16 @@ public class App {
 
                     //находим  id в его таблицы по имени
                     int address = findId(statement, "SELECT addresses.id from addresses where addresses.name = '" + ArrayValuesFromTable.get(4).toString() + "'");
-                    System.out.println("адрес " + address);
 
                     int good = findId(statement, "SELECT goods.id from goods where goods.name = '" + ArrayValuesFromTable.get(5).toString() + "'");
-                    System.out.println("товар " + good);
 
                     int client = findId(statement, "SELECT clients.id from clients where clients.name = '" + ArrayValuesFromTable.get(6).toString() + "'");
-                    System.out.println("клиент " + client);
 
                     int transport = findId(statement, "SELECT transport.id from transport where transport.name = '" + ArrayValuesFromTable.get(7).toString() + "'");
-                    System.out.println("транспорт " + transport);
 
                     int stores = findId(statement, "SELECT stores.id from stores where stores.name = '" + ArrayValuesFromTable.get(8).toString() + "'");
-                    System.out.println("магазин" + stores);
 
                     int status = findId(statement, "SELECT status.id from status where status.name = '" + ArrayValuesFromTable.get(9).toString() + "'");
-                    System.out.println("статус" + status);
 
 
                     String query = "INSERT INTO orders VALUES (null, '" + good + "', '" + ArrayValuesFromTable.get(1).toString()+"' , '" + address+"', " + "'" + stores+ "', '" +ArrayValuesFromTable.get(2).toString()+"', '"
@@ -372,6 +368,116 @@ public class App {
 
             }
         });
+        addRowSkladButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                try {
+
+                    DefaultTableModel model = new DefaultTableModel();
+                    model = showData(statement, "SELECT c.id, c.count, s.name AS store, g.name AS goods FROM count c INNER JOIN stores s ON c.store = s.id INNER JOIN goods g ON c.goods = g.id") ;
+
+                    //добавили строку
+                    model.addRow(new Object[]{ "","","","","","", "", "", "", ""});
+
+
+                    table7.setModel(model);
+//в строке нужны выпадающие поля
+                    JComboBox comboBoxAddress = new JComboBox();
+                    comboBoxFill(statement, "SELECT stores.name  FROM stores" ,comboBoxAddress);
+                    table7.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(comboBoxAddress));
+
+
+                    JComboBox comboBoxGoods = new JComboBox();
+                    comboBoxFill(statement, "SELECT goods.name FROM goods " ,comboBoxGoods);
+                    table7.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(comboBoxGoods));
+
+
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        });
+        saveRowButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                int lastColumn = table7.getColumnCount();
+                int lastRow = table7.getRowCount();
+                List <String> ArrayValuesFromTable = new ArrayList<>();
+                // String[][] values = new String[lastRow][lastColumn];
+                for (int i=0; i<table7.getColumnCount(); i++){
+                    ArrayValuesFromTable.add(table7.getValueAt(lastRow-1, i).toString());
+                }
+
+                String count = ArrayValuesFromTable.get(1).toString();
+
+
+
+
+
+                if ((!(ArrayValuesFromTable.get(0)).isEmpty())|| (!(ArrayValuesFromTable.get(2)).isEmpty())||(!(ArrayValuesFromTable.get(3)).isEmpty())||!ArrayValuesFromTable.get(1).isEmpty()){
+
+                     if (isNumeric(count)== false){
+                     JOptionPane.showMessageDialog(null, "Колличество должно быть числом");
+
+                     }
+
+                    else {
+                         int Count = Integer.parseInt(count);
+
+
+                         //находим  id в его таблицы по имени
+                         int store = findId(statement, "SELECT stores.id from stores where stores.name = '" + ArrayValuesFromTable.get(2).toString() + "'");
+
+                         int good = findId(statement, "SELECT goods.id from goods where goods.name = '" + ArrayValuesFromTable.get(3).toString() + "'");
+
+
+                         String query = "INSERT INTO count VALUES (null, '" + store + "', '" + good + "','" + Count + "')";
+                         try {
+                             statement.executeUpdate(query);
+                             int rowCount = statement.getUpdateCount();
+                             if (rowCount > 0) {
+                                 DefaultTableModel model = new DefaultTableModel();
+                                 model = showData(statement, "SELECT c.id, c.count, s.name AS store, g.name AS goods FROM count c INNER JOIN stores s ON c.store = s.id INNER JOIN goods g ON c.goods = g.id");
+
+                                 //добавили строку
+                                 model.addRow(new Object[]{"", "", "", ""});
+
+
+                                 table7.setModel(model);
+                             }
+                             if (rowCount <= 0) {
+                                 System.out.println("Что то пошло не так");
+
+                             }
+                         } catch (SQLException e) {
+                             e.printStackTrace();
+                         }
+
+                     }
+                }
+                else {
+                    JOptionPane.showMessageDialog(null, "Заполните все поля!");
+                }
+
+
+            }
+        });
+    }
+
+    public static boolean isNumeric(String str)
+    {
+        try
+        {
+            double d = Integer.parseInt(str);
+        }
+        catch(NumberFormatException nfe)
+        {
+            return false;
+        }
+        return true;
     }
 
 
