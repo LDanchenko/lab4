@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static javax.swing.UIManager.getString;
+import static javax.swing.UIManager.getSystemLookAndFeelClassName;
 
 public class App {
     private JTable table1;
@@ -309,33 +310,86 @@ public class App {
                 int lastRow = table3.getRowCount();
                 List <String> ArrayValuesFromTable = new ArrayList<>();
                // String[][] values = new String[lastRow][lastColumn];
-                for (int i=1; i<table3.getColumnCount(); i++){
+                for (int i=0; i<table3.getColumnCount(); i++){
                     ArrayValuesFromTable.add(table3.getValueAt(lastRow-1, i).toString());
                 }
-              /*  order.town = table3.getValueAt(lastRow-1,1).toString();
-                order.representation =  table3.getValueAt(lastRow-1,2).toString();
-                order.address =  table3.getValueAt(lastRow-1,3).toString();
-                order.goods =  table3.getValueAt(lastRow-1,4).toString();
-                order.client =  table3.getValueAt(lastRow-1,5).toString();
-                order.transport =  table3.getValueAt(lastRow-1,6).toString();
-                order.store = table3.getValueAt(lastRow-1,7).toString();
-                order.status = table3.getValueAt(lastRow-1,8).toString();
-                */
-                System.out.println(ArrayValuesFromTable.get(3).toString());
-                try {
-                    ResultSet resultSet = statement.executeQuery("SELECT addresses.id from addresses where addresses.name = '" + ArrayValuesFromTable.get(3).toString() + "'");
-                   // ResultSet resultSet = statement.executeQuery("SELECT id FROM stores WHERE stores.name = '"+parametr +"'");
 
-                    if(resultSet.next()) {
-                        String s = resultSet.getString(1).toString();
-                          JOptionPane.showMessageDialog(null, s);
+                if ((!(ArrayValuesFromTable.get(0)).isEmpty())|| (!(ArrayValuesFromTable.get(1)).isEmpty())||(!(ArrayValuesFromTable.get(2)).isEmpty())||(!(ArrayValuesFromTable.get(3)).isEmpty())||(!(ArrayValuesFromTable.get(4)).isEmpty())||(!(ArrayValuesFromTable.get(5)).isEmpty())||(!(ArrayValuesFromTable.get(6)).isEmpty())||(!(ArrayValuesFromTable.get(7)).isEmpty())||(!(ArrayValuesFromTable.get(8)).isEmpty())||(!(ArrayValuesFromTable.get(9)).isEmpty())){
+
+
+                    //находим  id в его таблицы по имени
+                    int address = findId(statement, "SELECT addresses.id from addresses where addresses.name = '" + ArrayValuesFromTable.get(4).toString() + "'");
+                    System.out.println("адрес " + address);
+
+                    int good = findId(statement, "SELECT goods.id from goods where goods.name = '" + ArrayValuesFromTable.get(5).toString() + "'");
+                    System.out.println("товар " + good);
+
+                    int client = findId(statement, "SELECT clients.id from clients where clients.name = '" + ArrayValuesFromTable.get(6).toString() + "'");
+                    System.out.println("клиент " + client);
+
+                    int transport = findId(statement, "SELECT transport.id from transport where transport.name = '" + ArrayValuesFromTable.get(7).toString() + "'");
+                    System.out.println("транспорт " + transport);
+
+                    int stores = findId(statement, "SELECT stores.id from stores where stores.name = '" + ArrayValuesFromTable.get(8).toString() + "'");
+                    System.out.println("магазин" + stores);
+
+                    int status = findId(statement, "SELECT status.id from status where status.name = '" + ArrayValuesFromTable.get(9).toString() + "'");
+                    System.out.println("статус" + status);
+
+
+                    String query = "INSERT INTO orders VALUES (null, '" + good + "', '" + ArrayValuesFromTable.get(1).toString()+"' , '" + address+"', " + "'" + stores+ "', '" +ArrayValuesFromTable.get(2).toString()+"', '"
+                   + client +  "',' " + ArrayValuesFromTable.get(3).toString()+ "', '" + transport + "', '" + status + "')" ;
+                    try {
+                        statement.executeUpdate(query);
+                        int rowCount = statement.getUpdateCount();
+                        if (rowCount > 0)
+                        {
+                            DefaultTableModel model = new DefaultTableModel();
+                            model = showData(statement, "SELECT o.id, o.town,  o.representation, o.route,  a.name AS address, g.name AS goods, c.name AS client, t.name AS transport, st.name AS store, s.name AS status  " +
+                                    "FROM orders o INNER JOIN addresses a ON o.address = a.id INNER JOIN goods g ON o.goods = g.id INNER JOIN clients c ON o.client = c.id  INNER JOIN transport t ON o.transport = t.id  " +
+                                    " INNER JOIN stores st ON o.store = st.id INNER JOIN status s ON o.status = s.id   ") ;
+
+                            //добавили строку
+                            model.addRow(new Object[]{ "","","","","","", "", "", "", ""});
+
+
+                            table3.setModel(model);
+                        }
+                        if (rowCount <= 0)
+                        {
+                            System.out.println("Что то пошло не так");
+
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
                     }
-                } catch (SQLException e) {
-                    e.printStackTrace();
+
+
+                }
+                else {
+                    JOptionPane.showMessageDialog(null, "Заполните все поля!");
                 }
 
             }
         });
+    }
+
+
+    //метод поиска id в таблице по имене
+    public int findId(Statement statement, String query){
+        String result = null;
+        try {
+            ResultSet resultSet = statement.executeQuery(query);
+
+            if(resultSet.next()) {
+                result = resultSet.getString(1).toString();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        }
+        int id = Integer.parseInt(result);
+        return id;
     }
 
     //тут выводим данные в таблицы
